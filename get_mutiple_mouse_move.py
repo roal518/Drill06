@@ -10,7 +10,7 @@ Arrow_cursur = load_image('hand_arrow.png')
 xlist = []
 ylist = []
 mouseX, mouseY = TUK_WIDTH//2, TUK_HEIGHT//2
-nowX, nowY = TUK_WIDTH//4, TUK_HEIGHT//4
+nowX, nowY = TUK_WIDTH//2, TUK_HEIGHT//2
 running = True
 x, y = 0, 0
 def keyboard_events():
@@ -26,7 +26,6 @@ def handle_events():
         if event.type == SDL_MOUSEBUTTONDOWN and event.button == SDL_BUTTON_LEFT:
             xlist.append(event.x)
             ylist.append(TUK_HEIGHT - event.y - 1)
-            print(f"{xlist},{ylist}")
 def move_character():
     global nowX, nowY, mouseX, mouseY, i, x, y
     global moveonce
@@ -36,20 +35,24 @@ def move_character():
             t = i / 1000
             x = (1 - t) * nowX + t * mouseX
             y = (1 - t) * nowY + t * mouseY
-            MOVE_character.clip_draw(runframe * 100, 0, 100, 100, x, y)
+            if nowX < mouseX:
+                MOVE_character.clip_draw(runframe * 100, 0, 100, 100, x, y)
+            else:
+                MOVE_character.clip_composite_draw(runframe * 100, 0, 100, 100,0,'h', x, y,100,100)
         else:
             moveonce = False
             nowX, nowY = mouseX, mouseY
+            if xlist:
+                xlist.pop(0)
+                ylist.pop(0)
     else :
         if not xlist:
             IDLE_character.clip_draw(idleframe * 100, 0, 100, 100, x, y)
         else:
-            mouseX = xlist.pop(0)
-            mouseY = ylist.pop(0)
+            mouseX = xlist[0]
+            mouseY = ylist[0]
             moveonce = True
             i = 0
-            print("inorder")
-
 def draw_cursur():
     for n in range(len(xlist)):
         Arrow_cursur.draw(xlist[n], ylist[n])
@@ -68,8 +71,4 @@ while running:
     update_canvas()
     runframe = (runframe + 5) % 6
     idleframe = (idleframe + 1) % 4
-
-
-
 close_canvas()
-
