@@ -72,4 +72,3 @@ while running:
     runframe = (runframe + 5) % 6
     idleframe = (idleframe + 1) % 4
 close_canvas()
-#aaaa
