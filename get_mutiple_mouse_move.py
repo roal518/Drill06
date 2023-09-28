@@ -1,76 +1,75 @@
 from pico2d import *
 
-TUK_WIDTH, TUK_HEIGHT = 1280,1024
+TUK_WIDTH, TUK_HEIGHT = 1280, 1024
 open_canvas(TUK_WIDTH, TUK_HEIGHT)
 tuk_ground = load_image('TUK_GROUND.png')
 IDLE_character = load_image('Woodcutter_idle.png')
 MOVE_character = load_image('Woodcutter_run.png')
 Arrow_cursur = load_image('hand_arrow.png')
 
-xlist = [TUK_WIDTH // 2]
-ylist = [TUK_HEIGHT // 2]
-running = True
-moving = False
-isClicked = False
+xlist = []
+ylist = []
 mouseX, mouseY = TUK_WIDTH//2, TUK_HEIGHT//2
-nowX, nowY = TUK_WIDTH//2, TUK_HEIGHT//2
-x, y = TUK_WIDTH//2, TUK_HEIGHT//2
+nowX, nowY = TUK_WIDTH//4, TUK_HEIGHT//4
+running = True
+x, y = 0, 0
 def keyboard_events():
     global running
-    keyevents = get_events()
-    for keyevent in keyevents:
+    for keyevent in get_events():
         if keyevent.type == SDL_KEYDOWN:
             if keyevent.key == SDLK_ESCAPE:
                 running = False
 def handle_events():
-    global mouseX,mouseY,isClicked
-    global nowX,nowY
-    global i
-    events = get_events()
-    for event in events:
-        if event.type == SDL_MOUSEBUTTONDOWN:
-            if event.button == 1:
-                print("clicked")
-                isClicked =True
-                nowX, nowY = mouseX, mouseY
-                xlist.append(event.x)
-                ylist.append(TUK_HEIGHT -1 -event.y)
-                print(f"{xlist}")
-                print(f"{ylist}")
-                mouseX = xlist[1]
-                mouseY = ylist[1]
-        elif event.type == SDL_MOUSEBUTTONUP:
-            if event.button == 1:
-                isClicked = False
+    global mouseX, mouseY
+    global nowX, nowY
+    for event in get_events():
+        if event.type == SDL_MOUSEBUTTONDOWN and event.button == SDL_BUTTON_LEFT:
+            xlist.append(event.x)
+            ylist.append(TUK_HEIGHT - event.y - 1)
+            print(f"{xlist},{ylist}")
 def move_character():
-    global x,y,nowX,nowY,i
-    global moving
-    if(x == mouseX and y == mouseY):
-        moving = False
-        nowX = xlist.pop(0)
-        nowY = ylist.pop(0)
-    elif( x != mouseX and y != mouseY):
-        moving = True
+    global nowX, nowY, mouseX, mouseY, i, x, y
+    global moveonce
+    i += 2
+    if moveonce:
+        if x != mouseX and y != mouseY:
+            t = i / 1000
+            x = (1 - t) * nowX + t * mouseX
+            y = (1 - t) * nowY + t * mouseY
+            MOVE_character.clip_draw(runframe * 100, 0, 100, 100, x, y)
+        else:
+            moveonce = False
+            nowX, nowY = mouseX, mouseY
+    else :
+        if not xlist:
+            IDLE_character.clip_draw(idleframe * 100, 0, 100, 100, x, y)
+        else:
+            mouseX = xlist.pop(0)
+            mouseY = ylist.pop(0)
+            moveonce = True
+            i = 0
+            print("inorder")
+
 def draw_cursur():
-    for n in range(0,len(xlist),1):
-        Arrow_cursur.draw(xlist[n],ylist[n])
-
-
+    for n in range(len(xlist)):
+        Arrow_cursur.draw(xlist[n], ylist[n])
+moveonce = True
+moving = True
+i = 0
 runframe = 0
 idleframe = 0
 while running:
     clear_canvas()
     tuk_ground.draw(TUK_WIDTH // 2, TUK_HEIGHT // 2)
     draw_cursur()
+    move_character()
     keyboard_events()
     handle_events()
     update_canvas()
+    runframe = (runframe + 5) % 6
+    idleframe = (idleframe + 1) % 4
 
-# 계획:: 리스트를 기본적으로 사용
-# 일단 리스트를 좀 써보면서 이해를 한다.
-# x,y좌표를 일단 따로 받고 나중에 합쳐 보자
-# 마우스 좌표 받기 자체는 쉬웠다.
-# 어제 했던 내용에 조금씩 붙이면 될듯하다.
-# 입력을 받고 append로 삽입 pop으로 관리한다.
-# 까다로운 점은 마우스 좌표를 받고 여러개의 그림을 남겨놓는게 아닐까
+
+
+close_canvas()
 
