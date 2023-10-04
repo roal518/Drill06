@@ -16,7 +16,9 @@ x, y = 0, 0
 def keyboard_events():
     global running
     for keyevent in get_events():
-        if keyevent.type == SDL_KEYDOWN:
+        if keyevent.type == SDL_QUIT:
+            running = False
+        elif keyevent.type == SDL_KEYDOWN:
             if keyevent.key == SDLK_ESCAPE:
                 running = False
 def handle_events():
