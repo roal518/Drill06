@@ -61,14 +61,29 @@ moving = True
 i = 0
 runframe = 0
 idleframe = 0
-while running:
+
+
+def get_event():
+    handle_events()
+    keyboard_events()
+
+
+def render_world():
     clear_canvas()
     tuk_ground.draw(TUK_WIDTH // 2, TUK_HEIGHT // 2)
     draw_cursur()
     move_character()
-    keyboard_events()
-    handle_events()
     update_canvas()
+
+
+def update_world():
+    global runframe, idleframe
     runframe = (runframe + 5) % 6
     idleframe = (idleframe + 1) % 4
+
+
+while running:
+    render_world()
+    get_event()
+    update_world()
 close_canvas()
